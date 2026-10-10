@@ -2,6 +2,7 @@ package com.apekshacare.backend.service.impl;
 
 import com.apekshacare.backend.dto.AppointmentRequestDto;
 import com.apekshacare.backend.dto.AppointmentResponseDto;
+import com.apekshacare.backend.exception.ResourceNotFoundException;
 import com.apekshacare.backend.mapper.AppointmentMapper;
 import com.apekshacare.backend.model.Appointment;
 import com.apekshacare.backend.repository.AppointmentRepository;
@@ -33,12 +34,7 @@ public class AppointmentServiceImpl implements AppointmentService {
 
     @Override
     public AppointmentResponseDto getAppointmentById(Long id) {
-        Appointment appointment =
-                appointmentRepository.findById(id).orElse(null);
-
-        if (appointment == null) {
-            return null;
-        }
+        Appointment appointment = findAppointmentById(id);
 
         return AppointmentMapper.toResponseDto(appointment);
     }
@@ -56,12 +52,7 @@ public class AppointmentServiceImpl implements AppointmentService {
             Long id,
             AppointmentRequestDto request
     ) {
-        Appointment appointment =
-                appointmentRepository.findById(id).orElse(null);
-
-        if (appointment == null) {
-            return null;
-        }
+        Appointment appointment = findAppointmentById(id);
 
         appointment.setPatientName(request.patientName());
         appointment.setPatientReference(request.patientReference());
@@ -79,6 +70,15 @@ public class AppointmentServiceImpl implements AppointmentService {
 
     @Override
     public void deleteAppointment(Long id) {
-        appointmentRepository.deleteById(id);
+        Appointment appointment = findAppointmentById(id);
+
+        appointmentRepository.delete(appointment);
+    }
+
+    private Appointment findAppointmentById(Long id) {
+        return appointmentRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException(
+                        "Appointment not found with id: " + id
+                ));
     }
 }
