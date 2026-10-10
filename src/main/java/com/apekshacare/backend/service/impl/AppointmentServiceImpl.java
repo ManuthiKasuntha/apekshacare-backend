@@ -1,5 +1,8 @@
 package com.apekshacare.backend.service.impl;
 
+import com.apekshacare.backend.dto.AppointmentRequestDto;
+import com.apekshacare.backend.dto.AppointmentResponseDto;
+import com.apekshacare.backend.mapper.AppointmentMapper;
 import com.apekshacare.backend.model.Appointment;
 import com.apekshacare.backend.repository.AppointmentRepository;
 import com.apekshacare.backend.service.AppointmentService;
@@ -17,38 +20,61 @@ public class AppointmentServiceImpl implements AppointmentService {
     }
 
     @Override
-    public Appointment createAppointment(Appointment appointment) {
-        return appointmentRepository.save(appointment);
+    public AppointmentResponseDto createAppointment(
+            AppointmentRequestDto request
+    ) {
+        Appointment appointment = AppointmentMapper.toEntity(request);
+
+        Appointment savedAppointment =
+                appointmentRepository.save(appointment);
+
+        return AppointmentMapper.toResponseDto(savedAppointment);
     }
 
     @Override
-    public Appointment getAppointmentById(Long id) {
-        return appointmentRepository.findById(id).orElse(null);
-    }
-
-    @Override
-    public List<Appointment> getAllAppointments() {
-        return appointmentRepository.findAll();
-    }
-
-    @Override
-    public Appointment updateAppointment(Long id, Appointment appointment) {
-        Appointment existingAppointment =
+    public AppointmentResponseDto getAppointmentById(Long id) {
+        Appointment appointment =
                 appointmentRepository.findById(id).orElse(null);
 
-        if (existingAppointment == null) {
+        if (appointment == null) {
             return null;
         }
 
-        existingAppointment.setPatientName(appointment.getPatientName());
-        existingAppointment.setPatientReference(appointment.getPatientReference());
-        existingAppointment.setAppointmentType(appointment.getAppointmentType());
-        existingAppointment.setAppointmentDate(appointment.getAppointmentDate());
-        existingAppointment.setAppointmentTime(appointment.getAppointmentTime());
-        existingAppointment.setDepartment(appointment.getDepartment());
-        existingAppointment.setStatus(appointment.getStatus());
+        return AppointmentMapper.toResponseDto(appointment);
+    }
 
-        return appointmentRepository.save(existingAppointment);
+    @Override
+    public List<AppointmentResponseDto> getAllAppointments() {
+        return appointmentRepository.findAll()
+                .stream()
+                .map(AppointmentMapper::toResponseDto)
+                .toList();
+    }
+
+    @Override
+    public AppointmentResponseDto updateAppointment(
+            Long id,
+            AppointmentRequestDto request
+    ) {
+        Appointment appointment =
+                appointmentRepository.findById(id).orElse(null);
+
+        if (appointment == null) {
+            return null;
+        }
+
+        appointment.setPatientName(request.patientName());
+        appointment.setPatientReference(request.patientReference());
+        appointment.setAppointmentType(request.appointmentType());
+        appointment.setAppointmentDate(request.appointmentDate());
+        appointment.setAppointmentTime(request.appointmentTime());
+        appointment.setDepartment(request.department());
+        appointment.setStatus(request.status());
+
+        Appointment updatedAppointment =
+                appointmentRepository.save(appointment);
+
+        return AppointmentMapper.toResponseDto(updatedAppointment);
     }
 
     @Override

@@ -1,18 +1,22 @@
 package com.apekshacare.backend.service;
 
-import com.apekshacare.backend.model.Appointment;
+import com.apekshacare.backend.dto.AppointmentRequestDto;
+import com.apekshacare.backend.dto.AppointmentResponseDto;
 
 import java.util.List;
 
 public interface AppointmentService {
 
-    Appointment createAppointment(Appointment appointment);
+    AppointmentResponseDto createAppointment(AppointmentRequestDto request);
 
-    Appointment getAppointmentById(Long id);
+    AppointmentResponseDto getAppointmentById(Long id);
 
-    List<Appointment> getAllAppointments();
+    List<AppointmentResponseDto> getAllAppointments();
 
-    Appointment updateAppointment(Long id, Appointment appointment);
+    AppointmentResponseDto updateAppointment(
+            Long id,
+            AppointmentRequestDto request
+    );
 
     void deleteAppointment(Long id);
 }
